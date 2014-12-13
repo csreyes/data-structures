@@ -1,11 +1,12 @@
 var HashTable = function(){
   this._limit = 8;
   this._storage = LimitedArray(this._limit);
-  this._counter = 0
+  this._counter = 0;
 };
 
 HashTable.prototype.insert = function(k, v){
-  if (this._counter >= (this._limit * .75)){
+  //invoke resize if this._counter + 1 > 75% of this._limit
+  if ((this._counter + 1) > (this._limit * .75)) {
     this.resize(2);
   }
   var i = getIndexBelowMaxForKey(k, this._limit);
@@ -23,45 +24,51 @@ HashTable.prototype.insert = function(k, v){
 HashTable.prototype.retrieve = function(k){
   var i = getIndexBelowMaxForKey(k, this._limit);
   var bucket = this._storage.get(i);
-  for (var j = 0; j < bucket.length; j++) {
-    if (bucket[j][0] === k) {
-      return bucket[j][1];
-    }
-  }
-  return null;
-};
-
-HashTable.prototype.remove = function(k){
-
-  if (this._counter -1 <= (this._limit * .25)){
-    this.resize(.5);
-  }
-  var i = getIndexBelowMaxForKey(k, this._limit);
-  var bucket = this._storage.get(i);
   if (bucket) {
-    for (var j = 0; j < bucket.length; i++) {
-      if (bucket[j][0] === k) {
-        bucket.splice(j, 1);
-        this.counter--;
+    for (var j = 0; j < bucket.length; j++) {
+      var tuple = bucket[j];
+      if (tuple[0] === k) {
+        return tuple[1];
       }
     }
   }
   return null;
 };
 
+HashTable.prototype.remove = function(k){
+  var i = getIndexBelowMaxForKey(k, this._limit);
+  var bucket = this._storage.get(i);
+  if (bucket) {
+    for (var j = 0; j < bucket.length; i++) {
+      var tuple = bucket[j];
+      if (tuple[0] === k) {
+        bucket.splice(j, 1);
+        this._counter--;
+      }
+    }
+  }
+  //invoke resize if less than 25% of this._limit
+  if (this._counter < this._limit *.25) {
+    this.resize(.5);
+  }
+};
+
 HashTable.prototype.resize = function(newLimit){
-  this._limit = this._limit * newLimit;
   var oldHash = this._storage;
-  var newHash = LimitedArray(this._limit);
+  this._limit = this._limit * newLimit;
+  this._storage = LimitedArray(this._limit);
+  this._counter = 0;
   var tuples = [];
-  this._storage = newHash;
   oldHash.each(function(bucket, index, storage) {
     if (bucket) {
-      tuples.push(bucket);
+      for (var i = 0; i < bucket.length; i++) {
+        tuples.push(bucket[i]);
+      }
     }
   });
   for (var j = 0; j < tuples.length; j++) {
-    this.insert(tuples[j][0][0], tuples[j][0][1]);
+    var tuple = tuples[j];
+    this.insert(tuple[0], tuple[1]);
   }
 };
 
