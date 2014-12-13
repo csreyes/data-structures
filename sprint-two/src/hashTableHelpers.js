@@ -10,7 +10,6 @@
 // Usage:
 //   limitedArray.set(3, 'hi');
 //   limitedArray.get(3); // returns 'hi'
-
 var LimitedArray = function(limit){
   var storage = [];
 
@@ -21,23 +20,11 @@ var LimitedArray = function(limit){
   };
   limitedArray.set = function(index, value){
     checkLimit(index);
-    if (!storage[index]) {
-      storage[index] = [value];
-    } else {
-      storage[index].push(value);
-    }
+    storage[index] = value;
   };
   limitedArray.each = function(callback){
     for(var i = 0; i < storage.length; i++){
       callback(storage[i], i, storage);
-    }
-  };
-  limitedArray.remove = function(index, key) {
-    var bucket = storage[index];
-    for (var i = 0; i < bucket.length; i++) {
-      if (bucket[i][0] === key) {
-        bucket.splice(i, 1);
-      }
     }
   };
 
