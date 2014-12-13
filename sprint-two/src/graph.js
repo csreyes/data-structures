@@ -42,10 +42,13 @@ Graph.prototype.removeEdge = function(fromNode, toNode){
   var fromNodeKey = JSON.stringify(fromNode);
   var toNodeKey = JSON.stringify(toNode);
   var fromNodeIndex = this.list[fromNodeKey].indexOf(toNodeKey);
+  var toNodeIndex = this.list[toNodeKey].indexOf(fromNodeKey);
   if (fromNodeIndex !== -1) {
     this.list[fromNodeKey].splice(fromNodeIndex, 1);
   }
-  this.removeEdge(toNode, fromNode);
+  if (toNodeIndex !== -1) {
+    this.list[toNodeKey].splice(fromNodeIndex, 1);
+  }
 };
 
 Graph.prototype.forEachNode = function(cb){
