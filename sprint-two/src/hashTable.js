@@ -7,7 +7,8 @@ var HashTable = function(){
 HashTable.prototype.insert = function(k, v){
   //invoke resize if this._counter + 1 > 75% of this._limit
   if ((this._counter + 1) > (this._limit * .75)) {
-    this.resize(2);
+    var doubled = this._limit * 2;
+    this.resize(doubled);
   }
   var i = getIndexBelowMaxForKey(k, this._limit);
   var tuple = [k, v];
@@ -47,19 +48,19 @@ HashTable.prototype.remove = function(k){
       }
     }
   }
-  //invoke resize if less than 25% of this._limit
   if (this._counter < this._limit *.25) {
-    this.resize(.5);
+    var half = this._limit * .5;
+    this.resize(half);
   }
 };
 
 HashTable.prototype.resize = function(newLimit){
   var oldHash = this._storage;
-  this._limit = this._limit * newLimit;
-  this._storage = LimitedArray(this._limit);
+  this._storage = LimitedArray(newLimit);
+  this._limit = newLimit;
   this._counter = 0;
   var tuples = [];
-  oldHash.each(function(bucket, index, storage) {
+  oldHash.each(function(bucket) {
     if (bucket) {
       for (var i = 0; i < bucket.length; i++) {
         tuples.push(bucket[i]);
